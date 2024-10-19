@@ -27,6 +27,7 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_PUBLIC_IP }}  # Añade la IP pública de tu instancia EC2 a GitHub Secrets
+        port: 22
         username: ec2-user  # Usuario por defecto en Amazon Linux (modifica si es otro usuario)
         key: ${{ secrets.EC2_SSH_KEY }}  # Llave SSH privada que usas para conectarte a EC2, añádela a GitHub Secrets
         script: |
