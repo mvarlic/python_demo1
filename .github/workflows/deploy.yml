@@ -1,0 +1,56 @@
+name: CI/CD Pipeline - Deploy Flask App to EC2
+
+on:
+  push:
+    branches:
+      - main  # Cambia a la rama que quieras monitorizar
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Paso 1: Clonar el repositorio
+    - name: Clonar el repositorio
+      uses: actions/checkout@v2
+
+    # Paso 2: Configurar acceso a AWS
+    - name: Configurar AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1  # Cambia a tu región preferida
+
+    # Paso 3: Conectar a la instancia EC2 y desplegar Flask
+    - name: Conectar a la instancia EC2 y desplegar Flask
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_PUBLIC_IP }}  # Añade la IP pública de tu instancia EC2 a GitHub Secrets
+        username: ec2-user  # Usuario por defecto en Amazon Linux (modifica si es otro usuario)
+        key: ${{ secrets.EC2_SSH_KEY }}  # Llave SSH privada que usas para conectarte a EC2, añádela a GitHub Secrets
+        script: |
+          # Directorio donde se clona la aplicación
+          APP_DIR="/home/ec2-user/app"
+          
+          # Si el directorio no existe, clona el repositorio por primera vez
+          if [ ! -d "$APP_DIR" ]; then
+            echo "Repositorio no encontrado. Clonando por primera vez..."
+            git clone -b main ${GITHUB_REPO_URL} $APP_DIR
+          else
+            echo "Repositorio encontrado. Actualizando..."
+            cd $APP_DIR
+            git pull origin main
+          fi
+          
+          # Instalar dependencias de Flask y Python si el requirements.txt ha cambiado
+          pip3 install --upgrade -r requirements.txt
+          
+          # Detener cualquier instancia anterior de Flask
+          pkill -f 'flask run' || true  # Ignorar errores si no está corriendo
+          
+          # Exportar variables de entorno (si son necesarias)
+          export FLASK_APP=app.py
+          
+          # Iniciar Flask en segundo plano y en el puerto 5000
+          nohup flask run --host=0.0.0.0 --port=5000 &
