@@ -8,9 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      APP_DIR: "/home/ec2-user/app"
-      REPO_URL: "https://github.com/${{github.repository}}.git"
 
     steps:
     # Paso 1: Clonar el repositorio
@@ -26,6 +23,10 @@ jobs:
         username: ec2-user  # Usuario por defecto en Amazon Linux (modifica si es otro usuario)
         key: ${{ secrets.EC2_SSH_KEY }}  # Llave SSH privada que usas para conectarte a EC2, añádela a GitHub Secrets
         script: |
+          # Directorio donde se clona la aplicación
+          APP_DIR="/home/ec2-user/app"
+          REPO_URL="https://github.com/${{github.repository}}.git"
+          
           # Si el directorio no existe, clona el repositorio por primera vez
           if [ ! -d "$APP_DIR" ]; then
             echo "Repositorio no encontrado. Clonando por primera vez '$REPO_URL' en '$APP_DIR'"
@@ -34,8 +35,9 @@ jobs:
             echo "Repositorio encontrado. Actualizando..."
             git pull origin main
           fi
-          
+
           cd $APP_DIR
+          
           # Instalar dependencias de Flask y Python si el requirements.txt ha cambiado
           pip3 install --upgrade -r requirements.txt
           
