@@ -25,11 +25,12 @@ jobs:
         script: |
           # Directorio donde se clona la aplicación
           APP_DIR="/home/ec2-user/app"
+          REPO_URL="https://github.com/${GITHUB_REPOSITORY}.git"
           
           # Si el directorio no existe, clona el repositorio por primera vez
           if [ ! -d "$APP_DIR" ]; then
             echo "Repositorio no encontrado. Clonando por primera vez..."
-            git clone -b main ${GITHUB_REPO_URL} $APP_DIR
+            git clone -b main ${REPO_URL} $APP_DIR
           else
             echo "Repositorio encontrado. Actualizando..."
             cd $APP_DIR
