@@ -3,47 +3,56 @@ name: CI/CD Pipeline - Deploy Flask App to EC2
 on:
   push:
     branches:
-      - main  # Cambia a la rama que quieras monitorizar
+      - main  # Ejecutar en cada push a la rama principal
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # Paso 1: Clonar el repositorio
+    # Paso 1: Clonar el repositorio en el runner de GitHub Actions
     - name: Clonar el repositorio
       uses: actions/checkout@v2
 
-    # Paso 3: Conectar a la instancia EC2 y desplegar Flask
+    # Paso 2: Configurar SSH y copiar el código al servidor
+    - name: Copiar archivos al servidor EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_PUBLIC_IP }}  # Dirección IP pública de la instancia EC2 en GitHub Secrets
+        port: 22
+        username: ec2-user  # Cambia esto si usas otro usuario
+        key: ${{ secrets.EC2_SSH_KEY }}  # Llave SSH privada en GitHub Secrets
+        script: |
+          # Crear el directorio de la aplicación si no existe
+          APP_DIR="/home/ec2-user/app"
+          mkdir -p $APP_DIR
+
+    # Paso 3: Sincronizar los archivos del repositorio actual con el servidor usando rsync
+    - name: Sincronizar archivos con rsync
+      env:
+        APP_DIR: "/home/ec2-user/app"
+      run: |
+        rsync -avz -e "ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_SSH_KEY }}" ./ ec2-user@${{ secrets.EC2_PUBLIC_IP }}:${APP_DIR}
+
+    # Paso 4: Conectar a la instancia y ejecutar los comandos de despliegue
     - name: Conectar a la instancia EC2 y desplegar Flask
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.EC2_PUBLIC_IP }}  # Añade la IP pública de tu instancia EC2 a GitHub Secrets
+        host: ${{ secrets.EC2_PUBLIC_IP }}
         port: 22
-        username: ec2-user  # Usuario por defecto en Amazon Linux (modifica si es otro usuario)
-        key: ${{ secrets.EC2_SSH_KEY }}  # Llave SSH privada que usas para conectarte a EC2, añádela a GitHub Secrets
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          # Directorio donde se clona la aplicación
-          APP_DIR="/home/ec2-user/app"
+          cd /home/ec2-user/app
           
-          # Si el directorio no existe, clona el repositorio por primera vez
-          if [ ! -d "$APP_DIR" ]; then
-            echo "Repositorio no encontrado. Clonando por primera vez..."
-            git clone -b main ${GITHUB_REPO_URL} $APP_DIR
-          else
-            echo "Repositorio encontrado. Actualizando..."
-            cd $APP_DIR
-            git pull origin main
-          fi
-          
-          # Instalar dependencias de Flask y Python si el requirements.txt ha cambiado
+          # Instalar dependencias de Flask y Python
           pip3 install --upgrade -r requirements.txt
           
           # Detener cualquier instancia anterior de Flask
-          pkill -f 'flask run' || true  # Ignorar errores si no está corriendo
-          
-          # Exportar variables de entorno (si son necesarias)
+          pkill -f 'flask run' || true
+
+          # Exportar variables de entorno necesarias
           export FLASK_APP=app.py
-          
-          # Iniciar Flask en segundo plano y en el puerto 80
+
+          # Iniciar Flask en segundo plano en el puerto 80
           nohup flask run --host=0.0.0.0 --port=80 &
