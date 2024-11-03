@@ -29,8 +29,8 @@ jobs:
           
           # Si el directorio no existe, clona el repositorio por primera vez
           if [ ! -d "$APP_DIR" ]; then
-            echo "Repositorio no encontrado. Clonando por primera vez..."
-            git clone -b main ${REPO_URL} $APP_DIR
+            echo "Repositorio no encontrado. Clonando por primera vez '$REPO_URL' en '$APP_DIR'"
+            git clone -b main $REPO_URL $APP_DIR
           else
             echo "Repositorio encontrado. Actualizando..."
             cd $APP_DIR
