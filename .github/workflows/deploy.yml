@@ -14,14 +14,6 @@ jobs:
     - name: Clonar el repositorio
       uses: actions/checkout@v2
 
-    # Paso 2: Configurar acceso a AWS
-    - name: Configurar AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1  # Cambia a tu región preferida
-
     # Paso 3: Conectar a la instancia EC2 y desplegar Flask
     - name: Conectar a la instancia EC2 y desplegar Flask
       uses: appleboy/ssh-action@master
@@ -53,5 +45,5 @@ jobs:
           # Exportar variables de entorno (si son necesarias)
           export FLASK_APP=app.py
           
-          # Iniciar Flask en segundo plano y en el puerto 5000
-          nohup flask run --host=0.0.0.0 --port=5000 &
+          # Iniciar Flask en segundo plano y en el puerto 80
+          nohup flask run --host=0.0.0.0 --port=80 &
