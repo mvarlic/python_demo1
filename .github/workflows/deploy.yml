@@ -49,7 +49,7 @@ jobs:
           source $VENV_DIR/bin/activate
 
           # Instalar dependencias de Flask y Python si el requirements.txt ha cambiado
-          pip3 install -r requirements.txt
+          pip3 install flask flask-wtf python-dotenv llama_index llama-index-embeddings-huggingface llama-index-vector-stores-supabase
           
           # Detener cualquier instancia anterior de Flask
           pkill -f 'flask run' || true  # Ignorar errores si no está corriendo
