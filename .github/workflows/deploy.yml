@@ -28,7 +28,7 @@ jobs:
           LOG_DIR="/home/ec2-user/log"
           REPO_URL="https://github.com/${{github.repository}}.git"
           VENV_DIR="$APP_DIR/venv"  # Directorio del entorno virtual
-          LOG_FILE="/home/ec2-user/log/deploy.log" 
+          LOG_FILE="$LOG_DIR/deploy.log" 
 
           # Redirige toda la salida a un archivo de log
           exec > >(tee -a $LOG_FILE) 2>&1
