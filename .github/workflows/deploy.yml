@@ -24,7 +24,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}  # Llave SSH privada que usas para conectarte a EC2, añádela a GitHub Secrets
         script: |
           # Directorio donde se clona la aplicación
-          APP_DIR="/data/app"
+          APP_DIR="/home/ec2-user/app"
           REPO_URL="https://github.com/${{github.repository}}.git"
           VENV_DIR="$APP_DIR/venv"  # Directorio del entorno virtual
           
