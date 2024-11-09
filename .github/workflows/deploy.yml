@@ -33,7 +33,7 @@ jobs:
           # Redirige toda la salida a un archivo de log
           exec > >(tee -a $LOG_FILE) 2>&1
           
-          # Si el directorio no existe, clona el repositorio por primera vez
+          echo "Si el directorio no existe, clona el repositorio por primera vez"
           if [ ! -d "$APP_DIR" ]; then
             echo "Repositorio no encontrado. Clonando por primera vez '$REPO_URL' en '$APP_DIR'"
             git clone -b main $REPO_URL $APP_DIR
@@ -50,17 +50,17 @@ jobs:
             python3 -m venv $VENV_DIR
           fi
 
-          # Activar el entorno virtual
+          echo "Activar el entorno virtual"
           source $VENV_DIR/bin/activate
 
-          # Instalar dependencias de Flask y Python si el requirements.txt ha cambiado
+          echo "Instalar dependencias de Flask y Python si el requirements.txt ha cambiado"
           pip3 install flask flask-wtf python-dotenv llama_index llama-index-embeddings-huggingface llama-index-vector-stores-supabase
           
-          # Detener cualquier instancia anterior de Flask
+          echo "Detener cualquier instancia anterior de Flask"
           pkill -f 'flask run' || true  # Ignorar errores si no está corriendo
           
-          # Exportar variables de entorno (si son necesarias)
+          echo "Exportar variables de entorno (si son necesarias)"
           export FLASK_APP=app.py
           
-          # Iniciar Flask en segundo plano y en el puerto 80
+          echo "Iniciar Flask en segundo plano y en el puerto 80"
           sudo nohup flask run --host=0.0.0.0 --port=80 > $LOG_DIR/flask.log 2>&1 &
