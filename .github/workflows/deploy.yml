@@ -58,8 +58,8 @@ jobs:
           
           echo "Detener cualquier instancia anterior de Flask"
           if pgrep -f 'flask run' > /dev/null; then
-            pkill -f 'flask run'
             echo "Flask detenido."
+            pkill -f 'flask run'
           else
             echo "Flask no esta ejecutandose."
           fi
