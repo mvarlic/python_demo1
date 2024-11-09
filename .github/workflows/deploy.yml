@@ -57,8 +57,8 @@ jobs:
           pip3 install flask flask-wtf python-dotenv llama_index llama-index-embeddings-huggingface llama-index-vector-stores-supabase
           
           echo "Detener cualquier instancia anterior de Flask"
-          if pgrep -f 'flask run' > /dev/null; then
-            echo "Flask detenido."
+          if ps aux | grep -v grep | grep -q 'flask run'; then
+            echo "Deteniendo flask"
             pkill -f 'flask run'
           else
             echo "Flask no esta ejecutandose."
