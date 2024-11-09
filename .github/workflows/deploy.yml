@@ -25,8 +25,13 @@ jobs:
         script: |
           # Directorio donde se clona la aplicación
           APP_DIR="/home/ec2-user/app"
+          LOG_DIR="/home/ec2-user/log"
           REPO_URL="https://github.com/${{github.repository}}.git"
           VENV_DIR="$APP_DIR/venv"  # Directorio del entorno virtual
+          LOG_FILE="/home/ec2-user/log/deploy.log" 
+
+          # Redirige toda la salida a un archivo de log
+          exec > >(tee -a $LOG_FILE) 2>&1
           
           # Si el directorio no existe, clona el repositorio por primera vez
           if [ ! -d "$APP_DIR" ]; then
@@ -58,4 +63,4 @@ jobs:
           export FLASK_APP=app.py
           
           # Iniciar Flask en segundo plano y en el puerto 80
-          nohup flask run --host=0.0.0.0 --port=80 &
+          sudo nohup flask run --host=0.0.0.0 --port=80 > $LOG_DIR/flask.log 2>&1 &
