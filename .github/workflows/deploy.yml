@@ -59,7 +59,7 @@ jobs:
           echo "Detener cualquier instancia anterior de Flask"
           if ps aux | grep -v grep | grep -q 'flask run'; then
             echo "Deteniendo flask"
-            pkill -f 'flask run'
+            sudo pkill -f 'flask run'
           else
             echo "Flask no esta ejecutandose."
           fi
