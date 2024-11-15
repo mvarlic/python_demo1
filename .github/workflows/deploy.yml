@@ -54,7 +54,7 @@ jobs:
           source $VENV_DIR/bin/activate
 
           echo "Instalar dependencias de Flask y Python si el requirements.txt ha cambiado"
-          pip3 install flask flask-wtf python-dotenv llama_index llama-index-embeddings-huggingface llama-index-vector-stores-supabase
+          pip3 install --upgrade -r requirements.txt
           
           echo "Detener cualquier instancia anterior de Flask"
           if ps aux | grep -v grep | grep -q 'flask run'; then
