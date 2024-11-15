@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-APP_PORT = os.getenv("APP_PORT")
+APP_PORT = int(os.getenv("APP_PORT", 80))
 app = Flask(__name__)
 @app.route("/")
 def helloworld():
